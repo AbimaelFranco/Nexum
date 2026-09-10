@@ -1,4 +1,4 @@
-"""Templates de system prompt por rol (profesor de inglés, matemática, coach).
-
-Se implementa a partir de Fase 2 (catálogo de roles).
+"""Templates de system prompt. Fase 1: un único prompt genérico
+(`default.py`). Se reemplaza en Fase 2 por un catálogo de roles
+(profesor de inglés, matemática, coach) cargado desde la tabla `roles`.
 """

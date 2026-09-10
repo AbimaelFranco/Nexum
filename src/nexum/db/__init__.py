@@ -1,4 +1,7 @@
-"""Capa de persistencia (SQLAlchemy + Alembic): modelos y repositorios.
+"""Capa de persistencia (SQLAlchemy + Alembic): `models.py`, `session.py`
+(engine/sesiones async) y `repositories/`.
 
-Se implementa a partir de Fase 1 (modelos `users`/`conversations`).
+Fase 1: `User` y `Conversation`. Ver docs/ARCHITECTURE.md §5 para el resto
+del esquema (`roles`, `user_configs`, `events`, `reminders`,
+`tool_call_audit`), que se añade en fases siguientes.
 """

@@ -16,10 +16,14 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md alembic.ini ./
 COPY src ./src
+COPY alembic ./alembic
 
-RUN pip install .
+# Instalación editable: el paquete importado apunta a /app/src en vez de a
+# una copia en site-packages, para que el bind mount `./src:/app/src:ro` de
+# docker-compose.yml (desarrollo) sirva código actualizado sin rebuild.
+RUN pip install -e .
 
 # Usuario sin privilegios
 RUN useradd --create-home --uid 1000 nexum
