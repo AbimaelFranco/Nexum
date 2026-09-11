@@ -1,4 +1,3 @@
-"""Repositorios de acceso a datos, uno por agregado (usuarios, recordatorios, ...).
-
-Se implementa a partir de Fase 1.
+"""Repositorios de acceso a datos, uno por agregado. Fase 1: `users.py` y
+`conversations.py`.
 """

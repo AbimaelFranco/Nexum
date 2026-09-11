@@ -7,7 +7,7 @@ El checklist de tareas vive en [GitHub Issues](https://github.com/AbimaelFranco/
 
 ## Estado actual
 
-🚧 **Fase 0 — Fundamentos.** El bot solo responde en modo "eco" (`/start`, `/ping`, y repite cualquier texto). Todavía no hay integración con Claude API ni roles.
+🚧 **Fase 1 — MVP conversacional.** El bot conversa usando Claude API (sin roles todavía: un único prompt genérico) y persiste el historial en Postgres. `/ping` sigue disponible como comando de salud.
 
 ## Requisitos
 
@@ -29,9 +29,9 @@ Este paso es manual — no existe una API pública para crearlo por script:
 cp .env.example .env
 ```
 
-Edita `.env` y completa como mínimo:
+Edita `.env` y completa:
 - `TELEGRAM_BOT_TOKEN` — el token del paso anterior.
-- `ANTHROPIC_API_KEY` — tu clave de la API de Claude (no se usa todavía en Fase 0, pero ya se puede dejar configurada).
+- `ANTHROPIC_API_KEY` — tu clave de la [consola de Anthropic](https://console.anthropic.com/) (API Keys). Sin esto el bot arranca igual, pero responde con un mensaje de error en vez de conversar.
 
 `.env` nunca se sube al repositorio (ya está en `.gitignore`).
 
@@ -41,17 +41,38 @@ Edita `.env` y completa como mínimo:
 docker compose up --build
 ```
 
-Esto levanta `app` (el bot, en modo polling), `postgres` y `redis`. Al terminar de iniciar, escribe `/start` o cualquier mensaje a tu bot en Telegram — debería responder.
+Esto levanta `app` (el bot, en modo polling), `postgres` y `redis`.
+
+## 4. Aplicar las migraciones de base de datos
+
+Con el stack arriba, en otra terminal:
+
+```bash
+docker compose exec app python -m alembic upgrade head
+```
+
+(Solo hace falta una vez, y de nuevo cada vez que se agregue una migración nueva.)
+
+Al terminar, escribe `/start` o cualquier mensaje a tu bot en Telegram — debería responder usando Claude.
+
+### Desarrollo: cambios en `src/` sin rebuild
+
+El servicio `app` monta `./src` dentro del contenedor y el paquete se instala en modo editable (`pip install -e .`), así que editar código en `src/` y reiniciar el contenedor (`docker compose restart app`) es suficiente — no hace falta `docker compose build` salvo que cambien las dependencias en `pyproject.toml`.
 
 ## Desarrollo local sin Docker (opcional)
+
+Requiere Postgres y Redis accesibles (por ejemplo, levantados con `docker compose up -d postgres redis` y `POSTGRES_HOST=localhost` en tu `.env`).
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # En Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 pre-commit install
+python -m alembic upgrade head
 python -m nexum.bot
 ```
+
+> **Nota (Windows + Docker Desktop):** conectar `asyncpg` desde el host a un Postgres en contenedor puede fallar con `ConnectionResetError` por cómo Docker Desktop reenvía el puerto en Windows. Si te pasa, corre Alembic dentro del contenedor en vez de en el host: `docker compose exec app python -m alembic upgrade head`.
 
 ## Estructura del proyecto
 

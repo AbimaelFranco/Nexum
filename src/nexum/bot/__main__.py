@@ -14,7 +14,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from nexum.bot.handlers.echo import router as echo_router
+from nexum.bot.handlers.chat import router as chat_router
+from nexum.bot.handlers.system import router as system_router
 from nexum.config import settings
 
 
@@ -37,7 +38,10 @@ async def main() -> None:
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     dispatcher = Dispatcher()
-    dispatcher.include_router(echo_router)
+    # Orden importa: `chat_router` no tiene filtro y capturaría todo si
+    # se registrara antes que los comandos específicos de `system_router`.
+    dispatcher.include_router(system_router)
+    dispatcher.include_router(chat_router)
 
     log.info("Nexum bot iniciando en modo polling...")
     await bot.delete_webhook(drop_pending_updates=True)
